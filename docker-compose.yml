@@ -8,7 +8,7 @@ services:
       PGDATA: "/var/lib/postgresql/data/pgdata"
     volumes:
       - ./schema:/docker-entrypoint-initdb.d
-      - ./psql-data:/var/lib/postgresql/data
+      - psql-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
@@ -22,15 +22,10 @@ services:
       PGADMIN_DEFAULT_PASSWORD: "admin"
       PGADMIN_CONFIG_SERVER_MODE: "False"
     volumes:
-      - ./pgadmin-data:/var/lib/pgadmin
+      - pgadmin-data:/var/lib/pgadmin
     ports:
       - "5050:80"
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 1G
     networks:
       - postgres
 
@@ -38,3 +33,9 @@ services:
 networks:
   postgres:
     driver: bridge
+
+volumes:
+  psql-data:
+  pgadmin-data:
+
+    
