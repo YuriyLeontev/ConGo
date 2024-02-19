@@ -39,7 +39,7 @@ CREATE TABLE account
 CREATE TABLE interests
 (
     id             serial       not null unique,
-    account_id     int references account (id) not null
+    account_id     int references account (id) not null,
     interest       varchar(255) not null
 );
 
@@ -53,7 +53,7 @@ CREATE TABLE interestsUser
 CREATE TABLE likes
 (
     id           serial       not null unique,
-    user_id      int references account (id) not null
+    user_id      int references account (id) not null,
     account_id   int references account (id) not null,
     ts           timestamp not null
 );
@@ -61,8 +61,8 @@ CREATE TABLE likes
 CREATE TABLE premium
 (
     id             serial       not null unique,
-    user_id        int references account (id) not null
-    start_premium  int references account (id) not null,
+    user_id        int references account (id) not null,
+    start_premium  timestamp not null,
     stop_premium   timestamp not null,
     CHECK (start_premium > '2018-01-01 00:00'),
     CHECK (stop_premium  > '2018-01-01 00:00')
