@@ -1,8 +1,12 @@
 package service
 
-import "congo/pkg/repository"
+import (
+	"congo"
+	"congo/pkg/repository"
+)
 
 type AccountsList interface {
+	GetAll() ([]congo.Account, error)
 }
 
 type Service struct {
@@ -10,5 +14,7 @@ type Service struct {
 }
 
 func NewService(repos *repository.Repository) *Service {
-	return &Service{}
+	return &Service{
+		AccountsList: NewAccountService(repos.AccountsList),
+	}
 }

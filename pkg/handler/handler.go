@@ -19,6 +19,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	accounts := router.Group("/accounts")
 	{
+		accounts.GET("/", h.getAll)
 		accounts.GET("filter", h.filter)
 		// filter := accounts.Group("/filter")
 		// {

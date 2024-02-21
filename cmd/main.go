@@ -5,29 +5,29 @@ import (
 	"congo/pkg/handler"
 	"congo/pkg/repository"
 	"congo/pkg/service"
-	"fmt"
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 func main() {
+	// set json log
+	logrus.SetFormatter(new(logrus.JSONFormatter))
 
-	repos := repository.NewRepository()
-	services := service.NewService(repos)
-	handler := handler.NewHandler(services)
-
+	// init config
 	if err := initConfig(); err != nil {
-		fmt.Printf("error initializing configs: %s", err.Error())
+		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
 
+	// init .env
 	if err := godotenv.Load(); err != nil {
-		fmt.Printf("error loading env variables: %s", err.Error())
+		logrus.Fatalf("error loading env variables: %s", err.Error())
 	}
 
-	_, err := repository.NewPostgresDB(repository.Config{
+	// create connect postgresql
+	db, err := repository.NewPostgresDB(repository.Config{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
@@ -36,14 +36,16 @@ func main() {
 		Password: os.Getenv("DB_PASSWORD"),
 	})
 	if err != nil {
-		fmt.Printf("failed to initialize db: %s", err.Error())
+		logrus.Fatalf("failed to initialize db: %s", err.Error())
 	}
 
-	fmt.Println("Finish")
+	repos := repository.NewRepository(db)
+	services := service.NewService(repos)
+	handler := handler.NewHandler(services)
 
 	src := new(congo.Server)
 	if err := src.Run("8000", handler.InitRoutes()); err != nil {
-		log.Fatalf("error initializing configs: %s", err.Error())
+		logrus.Fatalf("error initializing configs: %s", err.Error())
 	}
 
 }
