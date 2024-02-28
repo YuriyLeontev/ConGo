@@ -20,22 +20,23 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	accounts := router.Group("/accounts")
 	{
 		accounts.GET("/", h.getAll)
-		accounts.GET("filter", h.filter)
-		// filter := accounts.Group("/filter")
-		// {
-		// 	filter.GET(":sex")
-		// 	filter.GET(":email")
-		// 	filter.GET(":status")
-		// 	filter.GET(":fname")
-		// 	filter.GET(":sname")
-		// 	filter.GET(":phone")
-		// 	filter.GET(":country")
-		// 	filter.GET(":city")
-		// 	filter.GET(":birth")
-		// 	filter.GET(":sex")
-		// 	filter.GET(":likes")
-		// 	filter.GET(":premium")
-		// }
+		//accounts.GET("filter", h.filter)
+		filter := accounts.Group("/filter")
+		{
+			filter.GET("/", h.filterSex)
+
+			// filter.GET(":email")
+			// filter.GET(":status")
+			// filter.GET(":fname")
+			// filter.GET(":sname")
+			// filter.GET(":phone")
+			// filter.GET(":country")
+			// filter.GET(":city")
+			// filter.GET(":birth")
+			// filter.GET(":sex")
+			// filter.GET(":likes")
+			// filter.GET(":premium")
+		}
 	}
 
 	return router

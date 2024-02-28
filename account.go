@@ -7,13 +7,13 @@ import (
 type Account struct {
 	Id         int       `json:"-"`
 	Email      string    `json:"email"`
-	Fname      string    `json:"fname,omitempty"`
-	Sname      string    `json:"sname,omitempty"`
-	Phone      string    `json:"phone"`
+	Fname      *string   `json:"fname,omitempty"`
+	Sname      *string   `json:"sname,omitempty"`
+	Phone      *string   `json:"phone"`
 	Sex        string    `json:"sex"`
 	Birth      time.Time `json:"birth"`
-	Country_id string    `json:"country_id,omitempty"`
-	City_id    string    `json:"city_id,omitempty"`
+	Country_id *string   `json:"country_id,omitempty"`
+	City_id    *string   `json:"city_id,omitempty"`
 	Joned      time.Time `json:"joned"`
 	Status_id  string    `json:"status_id"`
 	Interests  []string  `json:"interests,omitempty"`

@@ -8,6 +8,7 @@ import (
 
 type AccountsList interface {
 	GetAll() ([]congo.Account, error)
+	FilterSex(string) ([]congo.Account, error)
 }
 
 type Repository struct {
