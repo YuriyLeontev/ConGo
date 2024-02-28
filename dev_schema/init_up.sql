@@ -80,3 +80,13 @@ VALUES ('всё сложно');
 
 -- INSERT INTO account (email,fname,sname,phone,sex,birth,joned, status_id)
 -- VALUES ('test@test.ru','ivan','ivanovich', '+7 111 111 11 11', 'm', '1951-01-01 00:00', '2012-01-01 00:00', 1 );
+
+
+-- INSERT INTO country (country) VALUES ('Russia');
+
+-- INSERT INTO city (city, country_id) VALUES ('Moscow',1);
+
+-- INSERT INTO statususer (namestatus) VALUES ('Free');
+
+INSERT INTO account (email, fname, sname, phone, sex, birth, joned, country_id, city_id, status_id) 
+VALUES ('esop@ya.ru', 'Kyrva', 'Perdole', '+1124456745', 'm', '1997-04-27 00:00', '2013-04-27 00:00', 1,1,1);

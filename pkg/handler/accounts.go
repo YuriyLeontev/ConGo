@@ -13,7 +13,7 @@ import (
 // }
 
 type getAllListsResponse struct {
-	Data []congo.Account `json:"data"`
+	Data []congo.Account `json:"accounts"`
 }
 
 func (h *Handler) getAll(c *gin.Context) {
