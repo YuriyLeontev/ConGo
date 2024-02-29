@@ -8,14 +8,10 @@ import (
 )
 
 const (
-	accountTable       = "account"
-	interestsTable     = "interests"
-	interestsUserTable = "interestsUser"
-	likesTable         = "likes"
-	premiumTable       = "premium"
-	statusUserTable    = "statusUser"
-	countryTable       = "country"
-	cityTable          = "city"
+	accountTable   = "accounts"
+	interestsTable = "accounts_interest"
+	likesTable     = "accounts_like"
+	premiumTable   = "accounts_premium"
 )
 
 type Config struct {
