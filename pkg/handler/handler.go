@@ -23,7 +23,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		//accounts.GET("filter", h.filter)
 		filter := accounts.Group("/filter")
 		{
-			filter.GET("/", h.filterSex)
+			filter.GET("/", h.filter)
 
 			// filter.GET(":email")
 			// filter.GET(":status")
