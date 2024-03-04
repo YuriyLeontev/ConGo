@@ -8,6 +8,7 @@ import (
 
 type Handler struct {
 	services *service.Service
+	types    map[string][]string
 }
 
 func NewHandler(services *service.Service) *Handler {
@@ -15,6 +16,7 @@ func NewHandler(services *service.Service) *Handler {
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
+	h.initFilters()
 	router := gin.New()
 
 	accounts := router.Group("/accounts")

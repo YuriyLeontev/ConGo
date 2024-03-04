@@ -17,6 +17,6 @@ func (s *AccountService) GetAll() ([]congo.Account, error) {
 	return s.repo.GetAll()
 }
 
-func (s *AccountService) FilterSex(sex string) ([]congo.Account, error) {
-	return s.repo.FilterSex(sex)
+func (s *AccountService) Filter(filters []congo.Filter, limit int) ([]congo.Account, error) {
+	return s.repo.Filter(filters, limit)
 }

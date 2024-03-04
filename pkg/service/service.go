@@ -7,7 +7,7 @@ import (
 
 type AccountsList interface {
 	GetAll() ([]congo.Account, error)
-	FilterSex(string) ([]congo.Account, error)
+	Filter([]congo.Filter, int) ([]congo.Account, error)
 }
 
 type Service struct {

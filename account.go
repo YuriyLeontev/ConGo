@@ -30,3 +30,9 @@ type Likes struct {
 	Id int       `json:"id"`
 	Ts time.Time `json:"ts"`
 }
+
+type Filter struct {
+	Filter   string   // Имя параметра фильрации
+	Method   string   // Метод фильтрации
+	Parametr []string // Параметр
+}

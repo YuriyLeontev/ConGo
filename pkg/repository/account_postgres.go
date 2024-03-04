@@ -3,6 +3,7 @@ package repository
 import (
 	"congo"
 	"fmt"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -30,18 +31,25 @@ func (r *AccountsPostgres) GetAll() ([]congo.Account, error) {
 	return accounts, err
 }
 
-func (r *AccountsPostgres) FilterSex(sex string) ([]congo.Account, error) {
+func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Account, error) {
 	var accounts []congo.Account
-	query := fmt.Sprintf("SELECT * FROM %s WHERE sex = '%s'", accountTable, sex)
-	err := r.db.Select(&accounts, query)
+	var err error
 
-	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		if len(accounts) != 0 {
-			fmt.Println("FilterSex", len(accounts))
-		} else {
-			fmt.Println("FilterSex not found")
+	fmt.Println(limit)
+	fmt.Println(filters)
+
+	for _, filter := range filters {
+		if strings.Compare(filter.Filter, "sex") == 0 {
+			query := fmt.Sprintf("SELECT * FROM %s WHERE sex = '%s'", accountTable, filter.Parametr[0])
+			err := r.db.Select(&accounts, query)
+
+			if err != nil {
+				fmt.Println(err.Error())
+			} else {
+				if len(accounts) != 0 {
+					fmt.Println("FilterSex", len(accounts))
+				}
+			}
 		}
 	}
 
