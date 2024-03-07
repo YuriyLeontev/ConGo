@@ -38,8 +38,7 @@ func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Ac
 	for _, filter := range filters {
 		if strings.Compare(filter.Filter, "sex") == 0 {
 			request_filter = append(request_filter, fmt.Sprintf("sex = '%s'", filter.Parametr[0]))
-		}
-		if strings.Compare(filter.Filter, "email") == 0 {
+		} else if strings.Compare(filter.Filter, "email") == 0 {
 			if filter.Method == "domain" {
 				request_filter = append(request_filter, " email ILIKE  '%"+fmt.Sprintf("%s' ", filter.Parametr[0]))
 			} else if filter.Method == "lt" {
@@ -47,26 +46,17 @@ func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Ac
 			} else if filter.Method == "gt" {
 				request_filter = append(request_filter, fmt.Sprintf(" email > '%s' ", filter.Parametr[0]))
 			}
-		}
-		if strings.Compare(filter.Filter, "status") == 0 {
+		} else if strings.Compare(filter.Filter, "status") == 0 {
 			if filter.Method == "eq" {
 				request_filter = append(request_filter, fmt.Sprintf(" status_user = '%s' ", filter.Parametr[0]))
 			} else if filter.Method == "neq" {
 				request_filter = append(request_filter, fmt.Sprintf(" status_user <> '%s' ", filter.Parametr[0]))
 			}
-		}
-		if strings.Compare(filter.Filter, "fname") == 0 {
+		} else if strings.Compare(filter.Filter, "fname") == 0 {
 			if filter.Method == "eq" {
 				request_filter = append(request_filter, fmt.Sprintf(" fname = '%s' ", filter.Parametr[0]))
 			} else if filter.Method == "any" {
-				names := "("
-				for i, name := range filter.Parametr {
-					if i != 0 {
-						names += ", "
-					}
-					names += fmt.Sprintf("'%s'", name)
-				}
-				names += ")"
+				names := "('" + strings.Join(filter.Parametr, "', '") + "')"
 				request_filter = append(request_filter, fmt.Sprintf(" fname IN %s", names))
 			} else if filter.Method == "null" {
 				if filter.Parametr[0] == "0" {
@@ -77,8 +67,7 @@ func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Ac
 					request_filter = append(request_filter, "fname IS NOT NULL")
 				}
 			}
-		}
-		if strings.Compare(filter.Filter, "sname") == 0 {
+		} else if strings.Compare(filter.Filter, "sname") == 0 {
 			if filter.Method == "eq" {
 				request_filter = append(request_filter, fmt.Sprintf(" sname = '%s' ", filter.Parametr[0]))
 			} else if filter.Method == "starts" {
@@ -92,8 +81,7 @@ func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Ac
 					request_filter = append(request_filter, "sname IS NOT NULL")
 				}
 			}
-		}
-		if strings.Compare(filter.Filter, "phone") == 0 {
+		} else if strings.Compare(filter.Filter, "phone") == 0 {
 			if filter.Method == "code" {
 				request_filter = append(request_filter, " phone ILIKE '%("+filter.Parametr[0]+")%'")
 			} else if filter.Method == "null" {
@@ -105,8 +93,7 @@ func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Ac
 					request_filter = append(request_filter, "phone IS NOT NULL")
 				}
 			}
-		}
-		if strings.Compare(filter.Filter, "country") == 0 {
+		} else if strings.Compare(filter.Filter, "country") == 0 {
 			if filter.Method == "eq" {
 				request_filter = append(request_filter, fmt.Sprintf("country = '%s'", filter.Parametr[0]))
 			} else if filter.Method == "null" {
@@ -118,19 +105,11 @@ func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Ac
 					request_filter = append(request_filter, "country IS NOT NULL")
 				}
 			}
-		}
-		if strings.Compare(filter.Filter, "city") == 0 {
+		} else if strings.Compare(filter.Filter, "city") == 0 {
 			if filter.Method == "eq" {
 				request_filter = append(request_filter, fmt.Sprintf("city = '%s'", filter.Parametr[0]))
 			} else if filter.Method == "any" {
-				cities := "("
-				for i, city := range filter.Parametr {
-					if i != 0 {
-						cities += ", "
-					}
-					cities += fmt.Sprintf("'%s'", city)
-				}
-				cities += ")"
+				cities := "('" + strings.Join(filter.Parametr, "', '") + "')"
 				request_filter = append(request_filter, fmt.Sprintf(" city IN %s", cities))
 			} else if filter.Method == "null" {
 				if filter.Parametr[0] == "0" {
@@ -141,8 +120,7 @@ func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Ac
 					request_filter = append(request_filter, "city IS NOT NULL")
 				}
 			}
-		}
-		if strings.Compare(filter.Filter, "birth") == 0 {
+		} else if strings.Compare(filter.Filter, "birth") == 0 {
 			if filter.Method == "lt" {
 				request_filter = append(request_filter, fmt.Sprintf(" birth < '%s'", filter.Parametr[0]))
 			} else if filter.Method == "gt" {
@@ -157,31 +135,26 @@ func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Ac
 		// TO-DO premium (now, null)
 	}
 
-	where := ""
+	whereQuery := ""
 	if len(request_filter) != 0 {
-		where = "WHERE "
+		whereQuery = "WHERE "
 	}
 
-	for i, filter := range request_filter {
-		if i != 0 {
-			where += " AND "
-		}
-		where += filter
-	}
+	whereQuery += strings.Join(request_filter, " AND ")
 
 	fmt.Println(limit)
 	fmt.Println(filters)
-	fmt.Println(where)
+	fmt.Println(whereQuery)
 
-	query := fmt.Sprintf("SELECT * FROM %s %s LIMIT %d", accountTable, where, limit)
+	query := fmt.Sprintf("SELECT * FROM %s %s LIMIT %d", accountTable, whereQuery, limit)
 	err := r.db.Select(&accounts, query)
 
 	if err != nil {
-		fmt.Println(err.Error())
-	} else {
-		if len(accounts) != 0 {
-			fmt.Println("Accounts", len(accounts))
-		}
+		return nil, err
+	}
+
+	if len(accounts) != 0 {
+		fmt.Println("Accounts", len(accounts))
 	}
 
 	return accounts, err
