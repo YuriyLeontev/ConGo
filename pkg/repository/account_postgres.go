@@ -144,9 +144,15 @@ func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Ac
 				request_join = fmt.Sprintf("INNER JOIN %s i on i.account_id = acc.id", interestsTable)
 				request_filter = append(request_filter, fmt.Sprintf(" i.interest IN %s", interest))
 			}
-		}
+		} else if strings.Compare(filter.Filter, "interests") == 0 {
+			if filter.Method == "contains" {
+				// SELECT acc.* FROM accounts acc INNER JOIN
+				// (select user_id from accounts_like where account_id in('5208','6478') group by user_id having count(*) = 2) i on i.user_id = acc.id
 
-		// TO-DO likes (contains)
+				// accounts := "('" + strings.Join(filter.Parametr, "', '") + "')"
+				// count_param := len(filter.Parametr)
+			}
+		}
 		// TO-DO premium (now, null)
 	}
 
