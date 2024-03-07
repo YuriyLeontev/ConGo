@@ -34,6 +34,7 @@ func (r *AccountsPostgres) GetAll() ([]congo.Account, error) {
 func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Account, error) {
 	var accounts []congo.Account
 	var request_filter []string
+	var request_join string = ""
 
 	for _, filter := range filters {
 		if strings.Compare(filter.Filter, "sex") == 0 {
@@ -128,25 +129,38 @@ func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Ac
 			} else if filter.Method == "year" {
 				request_filter = append(request_filter, fmt.Sprintf(" birth BETWEEN '01.01.%s' AND '12.31.%s' ", filter.Parametr[0], filter.Parametr[0]))
 			}
+		} else if strings.Compare(filter.Filter, "interests") == 0 {
+			interest := "('" + strings.Join(filter.Parametr, "', '") + "')"
+			if filter.Method == "contains" {
+				//SELECT acc.* FROM accounts acc INNER JOIN (SELECT account_id FROM accounts_interest WHERE interest IN ('Любовь', 'Солнце')
+				//          GROUP BY account_id HAVING count(account_id)>1) i on i.account_id = acc.id
+
+				count_param := len(filter.Parametr) - 1
+				req := fmt.Sprintf("(SELECT account_id FROM accounts_interest WHERE interest IN %s GROUP BY account_id HAVING count(account_id)>%d)", interest, count_param)
+
+				request_join = fmt.Sprintf("INNER JOIN %s i on i.account_id = acc.id", req)
+
+			} else if filter.Method == "any" {
+				request_join = fmt.Sprintf("INNER JOIN %s i on i.account_id = acc.id", interestsTable)
+				request_filter = append(request_filter, fmt.Sprintf(" i.interest IN %s", interest))
+			}
 		}
 
-		// TO-DO interests (contains, any)
 		// TO-DO likes (contains)
 		// TO-DO premium (now, null)
 	}
 
-	whereQuery := ""
+	whereQuery := request_join
 	if len(request_filter) != 0 {
-		whereQuery = "WHERE "
+		whereQuery += " WHERE "
 	}
 
 	whereQuery += strings.Join(request_filter, " AND ")
 
+	query := fmt.Sprintf("SELECT acc.* FROM %s acc %s LIMIT %d", accountTable, whereQuery, limit)
 	fmt.Println(limit)
-	fmt.Println(filters)
-	fmt.Println(whereQuery)
+	fmt.Println(query)
 
-	query := fmt.Sprintf("SELECT * FROM %s %s LIMIT %d", accountTable, whereQuery, limit)
 	err := r.db.Select(&accounts, query)
 
 	if err != nil {
