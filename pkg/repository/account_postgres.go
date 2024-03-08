@@ -73,9 +73,9 @@ func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Ac
 			params := strings.Join(strings.Split(filter.Parametr, ","), "', '")
 			filter.Parametr = fmt.Sprintf("('%s')", params)
 		case "code":
-			filter.Parametr = "%(" + filter.Parametr + ")%"
+			filter.Parametr = "'%(" + filter.Parametr + ")%'"
 		case "year":
-			filter.Parametr = fmt.Sprintf("01.01.%s' AND '12.31.%s", filter.Parametr, filter.Parametr)
+			filter.Parametr = fmt.Sprintf("'01.01.%s' AND '12.31.%s'", filter.Parametr, filter.Parametr)
 		case "domain":
 			filter.Parametr = "'%" + filter.Parametr + "'"
 		case "eq", "neq", "lt", "gt":
