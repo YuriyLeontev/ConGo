@@ -54,59 +54,59 @@ func (r *AccountsPostgres) addFilterRequest(filters []congo.Filter) []string {
 
 func (r *AccountsPostgres) Filter(filters []congo.Filter, limit int) ([]congo.Account, error) {
 	var accounts []congo.Account
+	var request_joins []congo.Filter
+	var request_filters []congo.Filter
+
 	var request_filter []string
 	var request_join string = ""
 
-	for i, filter := range filters {
-		switch filter.Filter {
-		case "email":
-			switch filter.Method {
-			case "domain":
-				filters[i].Parametr = "'%" + filter.Parametr + "'"
-			}
-		case "status":
-			filters[i].Filter = "status_user"
-		}
-
+	for _, filter := range filters {
 		switch filter.Method {
 		case "null":
 			switch filter.Parametr {
 			case "0":
-				filters[i].Parametr = "NULL"
+				filter.Parametr = "NULL"
 			case "1":
-				filters[i].Parametr = "NOT NULL"
+				filter.Parametr = "NOT NULL"
 			}
-		case "any":
+		case "any", "contains":
 			params := strings.Join(strings.Split(filter.Parametr, ","), "', '")
-			filters[i].Parametr = fmt.Sprintf("('%s')", params)
+			filter.Parametr = fmt.Sprintf("('%s')", params)
 		case "code":
-			filters[i].Parametr = "%(" + filter.Parametr + ")%"
+			filter.Parametr = "%(" + filter.Parametr + ")%"
 		case "year":
-			filters[i].Parametr = fmt.Sprintf("01.01.%s' AND '12.31.%s", filter.Parametr, filter.Parametr)
-
+			filter.Parametr = fmt.Sprintf("01.01.%s' AND '12.31.%s", filter.Parametr, filter.Parametr)
+		case "domain":
+			filter.Parametr = "'%" + filter.Parametr + "'"
 		case "eq", "neq", "lt", "gt":
-			filters[i].Parametr = fmt.Sprintf("'%s'", filters[i].Parametr)
+			filter.Parametr = fmt.Sprintf("'%s'", filter.Parametr)
+		}
+
+		switch filter.Filter {
+		case "interests", "likes", "premium":
+			request_joins = append(request_joins, filter)
+		case "status":
+			filter.Filter = "status_user"
+			request_filters = append(request_filters, filter)
+		default:
+			request_filters = append(request_filters, filter)
 		}
 	}
 
-	request_filter = r.addFilterRequest(filters)
+	request_filter = r.addFilterRequest(request_filters)
 
-	for _, filter := range filters {
+	for _, filter := range request_joins {
 		switch filter.Filter {
 		case "interests":
-			interest := "('" + filter.Parametr + "')"
 			switch filter.Method {
 			case "contains":
-				//SELECT acc.* FROM accounts acc INNER JOIN (SELECT account_id FROM accounts_interest WHERE interest IN ('Любовь', 'Солнце')
-				//          GROUP BY account_id HAVING count(account_id)>1) i on i.account_id = acc.id
-
-				count_param := len(filter.Parametr) - 1
-				req := fmt.Sprintf("(SELECT account_id FROM accounts_interest WHERE interest IN %s GROUP BY account_id HAVING count(account_id)>%d)", interest, count_param)
-
+				//SELECT acc.* FROM accounts acc INNER JOIN (SELECT account_id FROM accounts_interest WHERE interest IN ('Любовь', 'Солнце') GROUP BY account_id HAVING count(account_id)>1) i on i.account_id = acc.id
+				count_param := len(strings.Split(filter.Parametr, ","))
+				req := fmt.Sprintf("(SELECT account_id FROM accounts_interest WHERE interest IN %s GROUP BY account_id HAVING count(account_id)=%d)", filter.Parametr, count_param)
 				request_join = fmt.Sprintf("INNER JOIN %s i on i.account_id = acc.id", req)
 			case "any":
 				request_join = fmt.Sprintf("INNER JOIN %s i on i.account_id = acc.id", interestsTable)
-				request_filter = append(request_filter, fmt.Sprintf(" i.interest IN %s", interest))
+				request_filter = append(request_filter, fmt.Sprintf(" i.interest IN %s", filter.Parametr))
 			}
 
 		case "likes":
