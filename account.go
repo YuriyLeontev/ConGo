@@ -32,7 +32,7 @@ type Likes struct {
 }
 
 type Filter struct {
-	Filter   string   // Имя параметра фильрации
-	Method   string   // Метод фильтрации
-	Parametr []string // Параметр
+	Filter   string // Имя параметра фильрации
+	Method   string // Метод фильтрации
+	Parametr string // Параметр
 }

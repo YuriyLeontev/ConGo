@@ -111,7 +111,7 @@ func (h *Handler) filter(c *gin.Context) {
 				return
 			}
 
-			filter = append(filter, congo.Filter{Filter: typeFilter[0], Method: typeFilter[1], Parametr: strings.Split(paramPairs.Get(val), ",")})
+			filter = append(filter, congo.Filter{Filter: typeFilter[0], Method: typeFilter[1], Parametr: paramPairs.Get(val)})
 		}
 
 	}
